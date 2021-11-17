@@ -3,7 +3,10 @@ A collection of scripts for Unity game engine
 
 ### Player2DMovement    
 
-A script to move a 2D Character. Currently, It lets you choose between two types of movement: a Zelda-like WASD Top-down movement and a follow the mouse movement.    
+A script to move a 2D Character. It is a collection of diferent types of movement all in one file to make it easier to compare between themselves. Currently, It lets you choose between three types of movement:    
+	1. Zelda-like WASD Top-down movement.   
+	2. Follow the mouse movement.   
+	3. Click and go movement.       
 More movements to come.   
 The Character's GameObject requieres a RigidBody2D Component.   
 

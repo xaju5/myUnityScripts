@@ -6,39 +6,48 @@ public class Player2DMovement : MonoBehaviour
 {
     public float speed = 4f;
 
-    [Tooltip("Distance to the mouse when following it.")]
+    [Tooltip("Distance to the mouse when following it. Mov type 2 and 3.")]
     public float offsetToMouse = 1.5f;
 
-    [Tooltip("0 = WASD Movement.\n1 = Follow Mouse.")]
-    [Range(0, 1)]
+    [Tooltip("DO NOT CHANGE DURING EMULATION.\n1 = WASD Movement.\n2 = Follow Mouse.\n3 = Click and Go")]
+    [Range(1, 3)]
     public int movementType;
 
     private Vector2 direction;
+    private Vector3 waypoint;
+    private bool hasChangedDirection;
 
     // Start is called before the first frame update
     void Start()
     {
-        if(movementType == 0)
+        hasChangedDirection = false;
+        if (movementType == 1)
             GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (movementType == 0)
+        if (movementType == 1)
         {
-            //To enables to change movement type dinamicaly.
-            GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); 
-
-            //Actual Movement
             horizontalVerticalMovement();
+        }
+        if (movementType == 3)
+        {
+            getClickandGoCoords();
         }
     }
 
     void FixedUpdate()
     {
-        if (movementType == 1)
-            followMouse();   
+        if (movementType == 2)
+        {
+            followMouse();
+        }
+        if (movementType == 3)
+        {
+            clickandGoMovement();
+        }
     }
 
     //===================
@@ -58,25 +67,74 @@ public class Player2DMovement : MonoBehaviour
     private void followMouse()
     {
         direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-        followMouseRotate();
-        followMouseMovement();
+        Rotate();
+
+        if (direction.magnitude >= offsetToMouse)
+        {
+            MoveInADirection();
+        }
+        else
+        {
+            Stop();
+        }
     }
 
-    private void followMouseRotate()
+    //===================
+    // Click and Go
+    //===================
+    private void getClickandGoCoords()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            waypoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            direction = waypoint - transform.position;
+            StartCoroutine(setDirectionChange());
+        }
+    }
+
+
+    private void clickandGoMovement()
+    {
+        if (hasChangedDirection)
+        {
+            Stop();
+        }
+        if(Vector2.Distance(waypoint,transform.position) >= offsetToMouse)
+        {
+            Rotate();
+            MoveInADirection();
+        }
+        else
+        {
+            Stop();
+        }
+    }
+
+    IEnumerator setDirectionChange()
+    {
+        hasChangedDirection = true;
+        Debug.Log("hasChangedDirection = true");
+        yield return new WaitForFixedUpdate();
+        hasChangedDirection = false;
+        Debug.Log("hasChangedDirection = flase");
+
+    }
+    //===================
+    // Genral Methods
+    //===================
+    private void Rotate()
     {
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         GetComponent<Rigidbody2D>().MoveRotation(Quaternion.AngleAxis(angle, Vector3.forward));
     }
 
-    private void followMouseMovement()
+    private void MoveInADirection()
     {
-        if (direction.magnitude >= offsetToMouse)
-        {
-            GetComponent<Rigidbody2D>().velocity = new Vector2(direction.normalized.x * speed, direction.normalized.y * speed);
-        }
-        else
-        {
-            GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
-        }
+        GetComponent<Rigidbody2D>().velocity = new Vector2(direction.normalized.x * speed, direction.normalized.y * speed);
+    }
+
+    private void Stop()
+    {
+        GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
     }
 }
