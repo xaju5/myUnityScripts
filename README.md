@@ -13,4 +13,8 @@ The Character's GameObject requieres a RigidBody2D Component.
 ### UIManager
 
 A script for a Canvas GameObject that controls a score text, a health scroll bar, a Pause UI and a Death UI.   
-The Pause and Death UI are an UI Panel. At the same time, each one is a parent GameObject of buttons and texts.
+The Pause and Death UI are an UI Panel. At the same time, each one is a parent GameObject of buttons and texts.    
+
+### FreeCameraManager
+
+A script to move the Camera freely in an 3D world.
